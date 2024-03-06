@@ -12,7 +12,7 @@ displayName = 'podik'
 """Данные о сервере и о боте"""
 bot = mineflayer.createBot({
 
-    'host': 'CN6ypmdJdAXd8ZEN2p84OlU4D8NNQ1magfaer.ru-mc.ru',
+    'host': '123',
     'master': 'mrshopa5',
     'username': displayName,
     'version': '1.20.1',
