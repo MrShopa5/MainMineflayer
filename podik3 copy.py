@@ -1,21 +1,31 @@
+#ВЕРСИЯ ДЛЯ ИГРЫ НА ЛОКАЛЬНОМ СЕРВЕРЕ
+
 from javascript import require, On, Once, AsyncTask, once, off
 import random
 from time import sleep
+from langchain.schema import HumanMessage, SystemMessage
+from langchain.chat_models.gigachat import GigaChat
+import os
+from pathlib import Path
+
 mineflayer = require('mineflayer')
 pathfinder = require('mineflayer-pathfinder')
 GoalFollow = pathfinder.goals.GoalFollow
 GoalBlock = pathfinder.goals.GoalBlock
 
+
 """Имя бота"""
 displayName = 'podik'
 
 """Данные о сервере и о боте"""
-bot = mineflayer.createBot({
+bot =  mineflayer.createBot({
 
-    'host': '123',
+    'host': 'localhost',
+    'port': '12345',
     'master': 'mrshopa5',
     'username': displayName,
     'version': '1.20.1',
+    
 })
 
 
@@ -60,10 +70,9 @@ movements = pathfinder.Movements(bot, mcData)
 @On(bot, 'chat')
 def chat(this, user, message, *args):
     if '#элитры' in message:
-        bot.elytrafly.start()
-
-
-
+        bot.setControlState('jump', True)
+        bot.setControlState('jump', False)
+        sleep(50)
 
 
 """Бот будет искать руду которую вы указали (#алмаз, #железо, #обломок) в радиусе 128 блоков
@@ -83,7 +92,6 @@ def chat(this, user, message, *args):
         else:
             print(block.position)
             bot.chat('Нашел')
-            bot.equip(bot.registry.itemsByName.netherite_pickaxe.id, 'hand')
             bot.pathfinder.setMovements(movements)
             goal1 = GoalBlock(block.position.x, block.position.y, block.position.z)
             bot.pathfinder.setGoal(goal1, True)
@@ -136,7 +144,7 @@ def chat(this, user, message, *args):
         print(list)
         for i in range(int(number)):
             block = bot.findBlock({
-                'matching': mcData.blocksByName.spruce_log.id,
+                'matching': mcData.blocksByName.oak_log.id,
                 'maxDistance': 128, #здесь вы можете радиус поиска
             })
 
@@ -154,16 +162,41 @@ def chat(this, user, message, *args):
         print("Закончил")  #бот напишет вам в консоль, когда закончит
 
 
+#тестовая функция. Это gpt чат-бот
 
 
+@On(bot, 'chat')
+def chat(this, user, message,  * args):
+    if user == 'mrshopa5':
+        if ' * ' in message:
+            
+            chat = GigaChat(
+                credentials='GIGA chat API token',
+                verify_ssl_certs=False
+            )
+            
+            messages = [
+                SystemMessage(
+                    content="Ты просто дружелюбный чат бот, но с одним но ты находишься в мире майнкрафта на сервере с некоторым количеством игроков а ник твоего автора - Mrshopa кстати тебя зовут SpoopyBrown и ты мужского пола. Ты очень умный в плане математики и литературы Еще ты умеешь ходить и преследовать игроков по их просьбе"
+                )
+            ]
+            
+            for i in range(1):
+                user_input = message  # Получение сообщения пользователя
+                messages.append(HumanMessage(content=user_input))  # Добавление сообщения пользователя в список сообщений
+                res = chat(messages, memory={})  # Запрос к GigaChat API с использованием словаря памяти
+                messages.append(res)  # Добавление ответа GigaChat в список сообщений
+                bot.chat(res.content)  # Отправка ответа пользователю
+
+            
 
 """По комманде '#следуй за мной', бот будет следовать за вами, но не стоит далеко от него убегать.
 По комманде '#хватит преследовать', бот перестанет вас преследовать"""
 @On(bot, 'chat')
 def sled(this, user, message, *args):
     if user != displayName:
-        if '#следуй за мной' in message:
-            bot.chat('Хорошо, следую за вами!')
+        if '*#следуй за мной' in message:
+            
 
             player = bot.players[user]
             target = player.entity
@@ -172,8 +205,8 @@ def sled(this, user, message, *args):
             goal = GoalFollow(target, 1)
             bot.pathfinder.setGoal(goal, True)
 
-        elif '#хватит преследовать' in message:
-            bot.chat('Вот мы и прибыли')
+        elif '*#хватит преследовать' in message:
+            
             player = bot.players[user]
             target = player.entity
 
@@ -228,6 +261,9 @@ def chat(this, user, message, slot, *args):
                 bot.openContainer(block)
                 item = (bot.registry.itemsByName.diamond.id)
 
+
+
+                
 
 
 
@@ -324,11 +360,11 @@ def attack(this, user, message, entity, *args):
     if user != displayName:
         if '#сражайся со мной' in message:
             bot.chat('Тебе конец, щегол')
-            bot.equip(bot.registry.itemsByName.netherite_sword.id, 'hand')
-            player = bot.players[user]
+
+            player = bot.players['_Solitary__']
             target = player.entity
 
-            player = bot.players[user]  # еслу указать никнейм то он будет бить того игрока с тем никнеймом
+            player = bot.players['_Solitary__']  # еслу указать никнейм то он будет бить того игрока с тем никнеймом
 
             goal = GoalFollow(target, 1)
             bot.pathfinder.setGoal(goal, True)
@@ -340,7 +376,7 @@ def attack(this, user, message, entity, *args):
                 bot.setControlState('jump', False)
                 bot.attack(target)
 
-                bot.equip(bot.registry.itemsByName.netherite_sword.id, 'hand')
+
 
 
 
@@ -403,8 +439,8 @@ def chat(this, user, message, *args):
 @On(bot, 'chat')
 def chat(this, user, message, *args):
     if user and (user != displayName):
-        if '#иди на' in message:
-            message = message[8:]
+        if '*#иди на' in message:
+            message = message[9:]
             message = message.split(' ')
             a = []
             for i in message:
