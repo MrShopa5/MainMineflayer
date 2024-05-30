@@ -9,7 +9,12 @@ mrshopa5 - mrshopa(discord)
 
 # Требования
 У вас должен быть скачен python - https://www.python.org/
-а так же вы должны установить мост - "pip3 install javascript"
+А так же вы должны установить мост - "pip3 install javascript"
+Для работы с ai вам нужно ввести в терминал следующие комманды:
+pip install langchain-community
+pip install gigachat
+pip install gigachain
+
 
 # Заход на сервер
 Вам стоит лишь найти почти в начале кода эти строки и настроить под себя по инструкции
